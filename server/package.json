@@ -1,0 +1,8 @@
+{
+  'name': 'mindweb-server',
+  'description': 'Mindweb server to connect mindwave device and Firefox',
+  'version': '0.0.1',
+  'dependencies': {
+    'ws': '*'
+  }
+}
