@@ -1,13 +1,15 @@
 var WebSocketServer = require('ws').Server,
-  wss = new WebSocketServer({port: 54014, host:'127.0.0.1'}),
-  w = new WebSocketServer({port: 54015, host: '127.0.0.1'});
-console.log('listening to port 54014');
-console.log('listening to port 54015');
+    net = require('net'),
+    wss = new WebSocketServer({port: 54014, host:'127.0.0.1'}),
+    w = new WebSocketServer({port: 54015, host: '127.0.0.1'});
+
+console.log('ws1: listening to port 54014');
+console.log('ws2: listening to port 54015');
 
 wss.broadcast = function(data) {
-  console.log('broadcasting...');
+  console.log('ws1: broadcasting...');
   for (var i in this.clients) {
-    console.log('client '+ i);
+    console.log('ws1: client '+ i);
     this.clients[i].send(data);
   }
 };
@@ -24,9 +26,63 @@ w.on('connection', function(ws) {
   });
 });
 
-/*
-w.on('message', function(message) {
-  console.log("54015: received " + message);
-  wss.broadcast(message);
+// Client for mindwave connector server.
+var client = net.connect({port: 13854},
+  function() {
+    console.log('connected to mindwave connector');
+    msg = {
+      "appKey": "c40975447149c129bb8e269efc5427620acfc82b",
+      "appName": "brain-web"
+    }
+    client.write(JSON.stringify(msg));
+  }
+);
+
+// On receiving data from mindwave
+client.on('data', function(data) {
+  try {
+    var d = data.toString();
+    // tokenize the received stream
+    d = d.split('\r');
+    // parse each token as JSON object
+    d.forEach(function(item) { 
+      var val = JSON.parse(item);
+      if (val.blinkStrength) {
+        //console.log(val);
+        blink();
+      } else if (val.eSense) {
+        //console.log(val);
+      }
+    });
+  }
+  catch (err) {
+    //console.log('error: ' + err);
+  }
 });
-*/
+
+client.on('end', function() {
+  console.log('client disconnected');
+});
+
+
+var blinkCounter = 0;
+var timer = 0;
+
+function blink() {
+  console.log('blinked');
+  blinkCounter++;
+  if (timer === 0) {
+    timer = 1;
+    setTimeout(function() {
+      console.log('TIMEOUT!!');
+      console.log('blinkCounter: ' + blinkCounter);
+      if (blinkCounter === 3) {
+        console.log('it is 3 blinks');
+        wss.broadcast('changemode');
+      }
+      console.log('blinkCounter reset');
+      blinkCounter = 0;
+      timer = 0;
+    }, 3000);
+  }
+}
