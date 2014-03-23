@@ -1,9 +1,9 @@
 {
-  "name": "mindwave",
-  "title": "mindwave",
-  "id": "jid1-kNtM5rIC52O4Kw",
-  "description": "a basic add-on",
-  "author": "",
+  "name": "mindweb",
+  "title": "mindweb",
+  "id": "mindweb@darkowlzz",
+  "description": "Neurosky Mindwave Firefox Interface Add-on",
+  "author": "Sunny (darkowlzz) <indiasuny000@gmail.com>",
   "license": "MPL 2.0",
   "version": "0.1"
 }
